@@ -1,130 +1,49 @@
-// Simple Todo app logic
-const STORAGE_KEY = 'mytasks.todos.v1'
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>My Tasks</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="card">
+      <header class="card__header">
+        <div class="brand">
+          <div class="brand__icon">✓</div>
+          <div>
+            <h1 class="brand__title">My Tasks</h1>
+            <div class="brand__date"></div>
+          </div>
+        </div>
+      </header>
 
-let todos = []
-let filter = 'all'
+      <section class="card__body">
+        <div class="add-row">
+          <input id="newTask" class="input" placeholder="What do you need to do?" />
+          <button id="addBtn" class="add-btn">+</button>
+        </div>
 
-const newTaskInput = document.getElementById('newTask')
-const addBtn = document.getElementById('addBtn')
-const taskList = document.getElementById('taskList')
-const tabs = document.querySelectorAll('.tab')
-const itemsLeft = document.getElementById('itemsLeft')
-const clearCompleted = document.getElementById('clearCompleted')
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="active">Active</button>
+          <button class="tab" data-filter="completed">Completed</button>
+        </nav>
 
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    todos = raw ? JSON.parse(raw) : []
-  } catch (e) {
-    todos = []
-  }
-}
+        <ul id="taskList" class="task-list empty">
+          <li class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-text">No tasks here yet</div>
+          </li>
+        </ul>
+      </section>
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
-}
+      <footer class="card__footer">
+        <div id="itemsLeft" class="left">0 items left</div>
+        <button id="clearCompleted" class="clear">Clear completed</button>
+      </footer>
+    </main>
 
-function render() {
-  // clear
-  taskList.innerHTML = ''
-
-  const filtered = todos.filter(t => {
-    if (filter === 'active') return !t.done
-    if (filter === 'completed') return t.done
-    return true
-  })
-
-  if (filtered.length === 0) {
-    taskList.classList.add('empty')
-    const li = document.createElement('li')
-    li.className = 'empty-state'
-    li.innerHTML = '<div class="empty-icon">📋</div><div class="empty-text">No tasks here yet</div>'
-    taskList.appendChild(li)
-  } else {
-    taskList.classList.remove('empty')
-    filtered.forEach(task => {
-      const li = document.createElement('li')
-      li.className = 'task-item'
-      if (task.done) li.classList.add('done')
-
-      const checkbox = document.createElement('button')
-      checkbox.className = 'check'
-      checkbox.setAttribute('aria-pressed', task.done)
-      checkbox.innerHTML = task.done ? '✔' : ''
-      checkbox.addEventListener('click', () => toggle(task.id))
-
-      const label = document.createElement('div')
-      label.className = 'label'
-      label.textContent = task.text
-
-      li.appendChild(checkbox)
-      li.appendChild(label)
-
-      taskList.appendChild(li)
-    })
-  }
-
-  const left = todos.filter(t => !t.done).length
-  itemsLeft.textContent = left + (left === 1 ? ' item left' : ' items left')
-}
-
-function addTask(text) {
-  const t = { id: Date.now() + Math.random(), text: text.trim(), done: false }
-  if (!t.text) return
-  todos.unshift(t)
-  save()
-  render()
-}
-
-function toggle(id) {
-  todos = todos.map(t => t.id === id ? { ...t, done: !t.done } : t)
-  save()
-  render()
-}
-
-function setFilter(f) {
-  filter = f
-  tabs.forEach(tb => tb.classList.toggle('active', tb.dataset.filter === f))
-  render()
-}
-
-function clearDone() {
-  todos = todos.filter(t => !t.done)
-  save()
-  render()
-}
-
-// events
-addBtn.addEventListener('click', () => {
-  addTask(newTaskInput.value)
-  newTaskInput.value = ''
-  newTaskInput.focus()
-})
-
-newTaskInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    addTask(newTaskInput.value)
-    newTaskInput.value = ''
-  }
-})
-
-tabs.forEach(tb => tb.addEventListener('click', () => setFilter(tb.dataset.filter)))
-clearCompleted.addEventListener('click', clearDone)
-
-// init
-load()
-// set brand date to today's date
-function setTodayDate() {
-  const el = document.querySelector('.brand__date')
-  if (!el) return
-  const now = new Date()
-  const opts = { weekday: 'long', month: 'short', day: 'numeric' }
-  // use en-US to match screenshot (e.g. "Sunday, Jun 22")
-  el.textContent = now.toLocaleDateString('en-US', opts)
-}
-
-setTodayDate()
-render()
-
-// Expose for debug in console
-window.__todos = todos
+    <script src="script.js"></script>
+  </body>
+</html>
