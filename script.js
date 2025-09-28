@@ -115,12 +115,20 @@ clearCompleted.addEventListener('click', clearDone)
 load()
 // set brand date to today's date
 function setTodayDate() {
-  const el = document.querySelector('.brand__date')
+  let el = document.querySelector('.brand__date')
   if (!el) return
   const now = new Date()
   const opts = { weekday: 'long', month: 'short', day: 'numeric' }
-  // use en-US to match screenshot (e.g. "Sunday, Jun 22")
-  el.textContent = now.toLocaleDateString('en-US', opts)
+  const locale = navigator.language || 'en-US'
+  const text = now.toLocaleDateString(locale, opts)
+
+  // set text
+  el.textContent = text
+
+  // if it's a <time>, set datetime attribute for semantics
+  if (el.tagName && el.tagName.toLowerCase() === 'time') {
+    el.setAttribute('datetime', now.toISOString().slice(0, 10))
+  }
 }
 
 setTodayDate()
