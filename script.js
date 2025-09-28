@@ -1,3 +1,4 @@
+// Simple Todo app logic
 const STORAGE_KEY = 'mytasks.todos.v1'
 
 let todos = []
@@ -112,6 +113,17 @@ clearCompleted.addEventListener('click', clearDone)
 
 // init
 load()
+// set brand date to today's date
+function setTodayDate() {
+  const el = document.querySelector('.brand__date')
+  if (!el) return
+  const now = new Date()
+  const opts = { weekday: 'long', month: 'short', day: 'numeric' }
+  // use en-US to match screenshot (e.g. "Sunday, Jun 22")
+  el.textContent = now.toLocaleDateString('en-US', opts)
+}
+
+setTodayDate()
 render()
 
 // Expose for debug in console
